@@ -3,6 +3,7 @@
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import { useQuery } from "convex/react";
+import ChatPanel from "./chat-panel";
 
 export default function DocumentPage({
   params,
@@ -26,13 +27,13 @@ export default function DocumentPage({
       </div>
 
       <div className="flex gap-12">
-        <div className="bg-gray-900 p-4 rounded flex-1 h-[600px]">
+        <div className="bg-gray-900 p-4 rounded flex-1 h-[400px]">
           {document.documentUrl && (
             <iframe className="w-full h-full" src={document.documentUrl} />
           )}
         </div>
 
-        <div className="w-[300px] bg-gray-900"></div>
+        <ChatPanel documentId={document._id} />
       </div>
     </main>
   );
