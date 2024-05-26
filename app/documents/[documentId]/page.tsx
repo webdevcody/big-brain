@@ -6,6 +6,7 @@ import { useQuery } from "convex/react";
 import ChatPanel from "./chat-panel";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
+import { DeleteDocumentButton } from "./delete-document-button";
 
 export default function DocumentPage({
   params,
@@ -37,6 +38,8 @@ export default function DocumentPage({
         <>
           <div className="flex justify-between items-center">
             <h1 className="text-4xl font-bold">{document.title}</h1>
+
+            <DeleteDocumentButton documentId={document._id} />
           </div>
 
           <div className="flex gap-12">
