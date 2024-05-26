@@ -1,9 +1,12 @@
 "use client";
 
-import { z } from "zod";
-
+import { Input } from "@/components/ui/input";
+import { api } from "@/convex/_generated/api";
+import { Doc, Id } from "@/convex/_generated/dataModel";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useAction } from "convex/react";
 import { useForm } from "react-hook-form";
+import { z } from "zod";
 import {
   Form,
   FormControl,
@@ -12,47 +15,47 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { useMutation } from "convex/react";
-import { api } from "@/convex/_generated/api";
 import { LoadingButton } from "@/components/loading-button";
-import { Textarea } from "@/components/ui/textarea";
 
 const formSchema = z.object({
-  text: z.string().min(1).max(5000),
+  search: z.string().min(1).max(250),
 });
 
-export default function CreateNoteForm({
-  onNoteCreated,
+export function SearchForm({
+  setResults,
 }: {
-  onNoteCreated: () => void;
+  setResults: (notes: typeof api.search.searchAction._returnType) => void;
 }) {
-  const createNote = useMutation(api.notes.createNote);
+  const searchAction = useAction(api.search.searchAction);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      text: "",
+      search: "",
     },
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    await createNote({
-      text: values.text,
-    });
-    onNoteCreated();
+    await searchAction({ search: values.search }).then(setResults);
+    form.reset();
   }
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="flex flex-1 gap-2"
+      >
         <FormField
           control={form.control}
-          name="text"
+          name="search"
           render={({ field }) => (
-            <FormItem>
-              <FormLabel>Title</FormLabel>
+            <FormItem className="flex-1">
               <FormControl>
-                <Textarea rows={8} placeholder="Your note" {...field} />
+                <Input
+                  placeholder="Search over all your notes and documents using vector searching"
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -61,9 +64,9 @@ export default function CreateNoteForm({
 
         <LoadingButton
           isLoading={form.formState.isSubmitting}
-          loadingText="Creating..."
+          loadingText="Searching..."
         >
-          Create
+          Search
         </LoadingButton>
       </form>
     </Form>

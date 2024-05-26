@@ -8,10 +8,13 @@ import { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import { useParams } from "next/navigation";
 import { Id } from "@/convex/_generated/dataModel";
+import Image from "next/image";
 
 export default function NotesLayout({ children }: { children: ReactNode }) {
   const notes = useQuery(api.notes.getNotes);
   const { noteId } = useParams<{ noteId: Id<"notes"> }>();
+
+  const hasNotes = notes && notes.length > 0;
 
   return (
     <main className="w-full space-y-8">
@@ -20,24 +23,41 @@ export default function NotesLayout({ children }: { children: ReactNode }) {
         <CreateNoteButton />
       </div>
 
-      <div className="flex gap-12">
-        <ul className="space-y-2 w-[300px]">
-          {notes?.map((note) => (
-            <li
-              key={note._id}
-              className={cn("text-base hover:text-cyan-100", {
-                "text-cyan-300": note._id === noteId,
-              })}
-            >
-              <Link href={`/dashboard/notes/${note._id}`}>
-                {note.text.substring(0, 24) + "..."}
-              </Link>
-            </li>
-          ))}
-        </ul>
+      {!hasNotes && (
+        <div>
+          <div className="py-12 flex flex-col justify-center items-center gap-8">
+            <Image
+              src="/documents.svg"
+              width="200"
+              height="200"
+              alt="a picture of a girl holding documents"
+            />
+            <h2 className="text-2xl">You have no notes</h2>
+            <CreateNoteButton />
+          </div>
+        </div>
+      )}
 
-        <div className="bg-slate-800 rounded p-4 w-full">{children}</div>
-      </div>
+      {hasNotes && (
+        <div className="flex gap-12">
+          <ul className="space-y-2 w-[300px]">
+            {notes?.map((note) => (
+              <li
+                key={note._id}
+                className={cn("text-base hover:text-cyan-100", {
+                  "text-cyan-300": note._id === noteId,
+                })}
+              >
+                <Link href={`/dashboard/notes/${note._id}`}>
+                  {note.text.substring(0, 24) + "..."}
+                </Link>
+              </li>
+            ))}
+          </ul>
+
+          <div className="w-full">{children}</div>
+        </div>
+      )}
     </main>
   );
 }

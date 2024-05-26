@@ -12,6 +12,7 @@ import { ConvexError, v } from "convex/values";
 import { internal } from "./_generated/api";
 import OpenAI from "openai";
 import { Id } from "./_generated/dataModel";
+import { embed } from "./notes";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -145,13 +146,16 @@ export const generateDocumentDescription = internalAction({
         model: "gpt-3.5-turbo",
       });
 
-    const response =
+    const description =
       chatCompletion.choices[0].message.content ??
       "could not figure out the description for this document";
 
+    const embedding = await embed(description);
+
     await ctx.runMutation(internal.documents.updateDocumentDescription, {
       documentId: args.documentId,
-      description: response,
+      description: description,
+      embedding,
     });
   },
 });
@@ -160,10 +164,12 @@ export const updateDocumentDescription = internalMutation({
   args: {
     documentId: v.id("documents"),
     description: v.string(),
+    embedding: v.array(v.float64()),
   },
   async handler(ctx, args) {
     await ctx.db.patch(args.documentId, {
       description: args.description,
+      embedding: args.embedding,
     });
   },
 });
