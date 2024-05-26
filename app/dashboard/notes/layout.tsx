@@ -64,9 +64,12 @@ export default function NotesLayout({ children }: { children: ReactNode }) {
             {notes?.map((note) => (
               <li
                 key={note._id}
-                className={cn("text-base hover:text-cyan-100", {
-                  "text-cyan-300": note._id === noteId,
-                })}
+                className={cn(
+                  "text-base hover:text-cyan-300 dark:hover:text-cyan-100",
+                  {
+                    "text-cyan-300": note._id === noteId,
+                  }
+                )}
               >
                 <Link href={`/dashboard/notes/${note._id}`}>
                   {note.text.substring(0, 24) + "..."}
